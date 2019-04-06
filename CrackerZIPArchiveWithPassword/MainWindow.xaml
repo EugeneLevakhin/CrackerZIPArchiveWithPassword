@@ -5,27 +5,46 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CrackerZIPArchiveWithPassword"
         mc:Ignorable="d"
-        Title="Cracker ZIP-archive with password" Height="214" Width="546.279" Closing="Window_Closing" Icon="extract_archive.ico" ResizeMode="NoResize">
-    <Grid Margin="0,0,2,0">
+        Title="Cracker ZIP-archive with password" Height="214" Width="550" 
+        Closing="Window_Closing" Icon="Archive-icon.ico" ResizeMode="NoResize">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="20" />
+            <RowDefinition />
+            <RowDefinition />
+            <RowDefinition />
+            <RowDefinition />
+        </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="184*"/>
-            <ColumnDefinition Width="333*"/>
+            <ColumnDefinition Width="185*" />
+            <ColumnDefinition Width="340*" />
         </Grid.ColumnDefinitions>
-        <Menu x:Name="MainMenu" HorizontalAlignment="Left" Height="20" VerticalAlignment="Top" Width="536" Grid.ColumnSpan="2">
+
+        <Grid.Background>
+            <LinearGradientBrush>
+                <GradientStop Color="#FFE8CDCD" Offset="0" />
+                <GradientStop Color="#FF57544C" Offset="1" />
+            </LinearGradientBrush>
+        </Grid.Background>
+
+        <Menu x:Name="MainMenu" Grid.ColumnSpan="2">
             <MenuItem Header="File">
-                <MenuItem Name ="MenuOpen" Header="Open ZIP-archive with password" Click="MenuItemOpen_Click"/>
-                <MenuItem Name ="MenuSave" Header="Save state of search" Click="MenuItemSave_Click" IsEnabled="False"/>
-                <MenuItem Name ="MenuSaveAs" Header="Save state of search as ..." Click="MenuItemSaveAs_Click" IsEnabled="False"/>
-                <MenuItem Name ="MenuOpenState" Header="Load state of search" Click="MenuItemLoadState_Click"/>
+                <MenuItem Name="MenuOpen" Header="Open ZIP-archive with password" Click="MenuItemOpen_Click"/>
+                <MenuItem Name="MenuSave" Header="Save state of search" Click="MenuItemSave_Click" IsEnabled="False"/>
+                <MenuItem Name="MenuSaveAs" Header="Save state of search as ..." Click="MenuItemSaveAs_Click" IsEnabled="False"/>
+                <MenuItem Name="MenuOpenState" Header="Load state of search" Click="MenuItemLoadState_Click"/>
                 <MenuItem Name="MenuExit" Header="Exit" Click="MenuItemExit_Click"/>
             </MenuItem>
         </Menu>
-        <Label x:Name="labelCurrPassword" Content="" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="109,147,0,0" Height="26" Width="182" Grid.ColumnSpan="2"/>
-        <Label x:Name="label1" Content="File: " HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,36,0,0" Visibility="Hidden"/>
-        <Label x:Name="labelFileName" Content="" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="32,36,0,0" Grid.ColumnSpan="2" Width="481"/>
-        <Label x:Name="label2" Content="Current password: " HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,147,0,0" Visibility="Hidden"/>
-        <Label x:Name="label3" Content="Elapsed time:" VerticalAlignment="Top" Margin="0,62,111,0" Visibility="Hidden"/>
-        <Label x:Name="labelElapsedTime" Content="" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="85,62,0,0" Width="96"/>
+  
+        <Label x:Name="label1" Grid.Row="1" Margin="5" Content="File: " Visibility="Hidden" />
+        <Label x:Name="labelFileName" Grid.Row="1" Grid.Column="1" Margin="5" />
 
+        <Label x:Name="label3" Grid.Row="3" Content="Elapsed time:" Margin="5"  Visibility="Hidden" />
+        <Label x:Name="labelElapsedTime" Grid.Row="3" Grid.Column="1" Margin="5" />
+
+        <Label x:Name="label2" Grid.Row="4" Content="Current password: " Margin="5" Visibility="Hidden" />
+        <Label x:Name="labelCurrPassword" Grid.Row="4" Grid.Column="1" Margin="5" />
     </Grid>
 </Window>

@@ -1,54 +1,48 @@
-﻿using System;
+﻿using SharpCompress.Archive.Zip;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 using System.IO;
-using SharpCompress.Archive.Zip;
 using System.Windows;
-
 
 namespace CrackerZIPArchiveWithPassword
 {
     class CreckerZIPPassword
     {
-        object LockObject = new object();
-        public List<string> listOfFile = new List<string>();          // for deleting files after close programm
-        private string currentPassword;
+        private object _lockObject = new object();
+        private string _currentPassword;
+        private ZipArchive _zipArchive;
+        private Stream _stream;
+        private FileStream _writer;
+        private int _countAtemptsCompareCRC = 0;
+
+        public List<string> ListOfFile { get; set; }          // for deleting files after close programm
+
         public string CurrentPassword
         {
             get
             {
-                lock (LockObject)
+                lock (_lockObject)
                 {
-                    return currentPassword;
+                    return _currentPassword;
                 }
-
             }
             set
             {
-                lock (LockObject)
+                lock (_lockObject)
                 {
-                    currentPassword = value;
+                    _currentPassword = value;
                 }
             }
         }
 
-
-        ZipArchive ZIPArchive;
-        Stream stream;
-        FileStream writer;
-        public int countAtemptsCompareCRC = 0;
-
-        public CreckerZIPPassword()
+        public CreckerZIPPassword() : this("0")
         {
-            currentPassword = "0";
         }
 
         public CreckerZIPPassword(string currentPassword)
         {
-            this.currentPassword = currentPassword;
+            _currentPassword = currentPassword;
+            ListOfFile = new List<string>();
         }
 
         public string GetPassword(string pathOfZipArchive)
@@ -56,55 +50,58 @@ namespace CrackerZIPArchiveWithPassword
             bool passwordIsFind = false;
             uint CRCOfEntry = 0;
             string nameOfEntireInArchive = "";
-            
+
             while (!passwordIsFind)
             {
                 try
                 {
-                    ZIPArchive = ZipArchive.Open(pathOfZipArchive, currentPassword);
+                    _zipArchive = ZipArchive.Open(pathOfZipArchive, _currentPassword);
                 }
                 catch (Exception e)
                 {
                     MessageBox.Show("File not found or you input wrong name of file");
                     break;
                 }
-
+                
                 try
                 {
-                    foreach (var entire in ZIPArchive.Entries)
+                    foreach (var entire in _zipArchive.Entries)
                     {
-                        stream = entire.OpenEntryStream();
+                        _stream = entire.OpenEntryStream();
                         nameOfEntireInArchive = entire.FilePath;
-                        if (!listOfFile.Contains(entire.FilePath))    
+
+                        if (!ListOfFile.Contains(entire.FilePath))
                         {
-                            listOfFile.Add(entire.FilePath); 
-                        }        
-                        writer = new FileStream(nameOfEntireInArchive, FileMode.Create, FileAccess.Write);
-                        entire.WriteTo(writer);
+                            ListOfFile.Add(entire.FilePath);
+                        }
+
+                        _writer = new FileStream(nameOfEntireInArchive, FileMode.Create, FileAccess.Write);
+                        entire.WriteTo(_writer);
                         CRCOfEntry = entire.Crc;
                     }
                 }
                 catch (Exception ex)
                 {
-                    if (ZIPArchive != null)
+                    if (_zipArchive != null)
                     {
-                        ZIPArchive.Dispose();
+                        _zipArchive.Dispose();
                     }
-                    if (stream != null)
+                    if (_stream != null)
                     {
-                        stream.Close();
+                        _stream.Close();
                     }
-                    if (writer != null)
+                    if (_writer != null)
                     {
-                        writer.Close();
+                        _writer.Close();
                     }
-                    
-                    IncrementPassword(CurrentPassword.Length - 1);
+
+                    CurrentPassword = PasswordIncrementor.IncrementPassword(CurrentPassword, CurrentPassword.Length - 1);
                     continue;
                 }
 
-                writer.Close();
+                _writer.Close();
                 uint destCRC = 0;
+
                 using (var newArchive = ZipArchive.Create())
                 {
                     newArchive.AddEntry(nameOfEntireInArchive, new FileInfo(nameOfEntireInArchive));
@@ -115,7 +112,7 @@ namespace CrackerZIPArchiveWithPassword
                     }
 
                     ZipArchive z = ZipArchive.Open("Destination.zip");
-                   
+
                     foreach (var item in z.Entries)
                     {
                         destCRC = item.Crc;
@@ -125,57 +122,15 @@ namespace CrackerZIPArchiveWithPassword
 
                 if (CRCOfEntry != destCRC)
                 {
-                    countAtemptsCompareCRC++;
-                    IncrementPassword(CurrentPassword.Length - 1);
-                   
+                    _countAtemptsCompareCRC++;
+                    CurrentPassword = PasswordIncrementor.IncrementPassword(CurrentPassword, CurrentPassword.Length - 1);
+
                     continue;
                 }
                 //MessageBox.Show("Password: " + CurrentPassword);
                 passwordIsFind = true;
             }
             return CurrentPassword;
-        }
-
-        private void IncrementPassword(int position)
-        {
-            if (CurrentPassword[position].Equals('9'))
-            {
-                PasteCharInPassword(position, 'a');
-                return;
-            }
-            if (CurrentPassword[position].Equals('z'))
-            {
-                PasteCharInPassword(position, 'A');
-                return;
-            }
-            if (CurrentPassword[position].Equals('Z'))
-            {
-                if (position == 0)
-                {
-                    string str = CurrentPassword.Insert(position, '0'.ToString());
-                    CurrentPassword = str;
-                    PasteCharInPassword(position + 1, '0');
-                    return;
-                }
-                else
-                {
-                    PasteCharInPassword(position, '0');
-                    IncrementPassword(position - 1);
-                }
-            }
-            else
-            {
-                char symb = CurrentPassword[position];
-                symb++;
-                PasteCharInPassword(position, symb);
-            }
-        }
-
-        private void PasteCharInPassword(int position, char symbol)
-        {
-            string string1 = CurrentPassword.Insert(position, symbol.ToString());
-            string string2 = string1.Remove(position + 1, 1);
-            CurrentPassword = string2;
         }
     }
 }

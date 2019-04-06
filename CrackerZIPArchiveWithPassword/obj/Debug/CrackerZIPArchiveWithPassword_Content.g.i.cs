@@ -8,6 +8,6 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("extract_archive.ico")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("archive-icon.ico")]
 
 
